@@ -4,6 +4,7 @@ fn main() {
     println!("Hello, world!");
     println!("This is a Rubik's cube solver");
     
-    let cube = rubikscube::RubiksCube::new();
+    let mut cube = rubikscube::RubiksCube::new();
+    cube.U();
     cube.repr();
 }

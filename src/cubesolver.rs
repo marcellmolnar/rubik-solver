@@ -51,11 +51,31 @@ fn moves_to_string(moves: &Vec<i32>) -> String {
     return result;
 }
 
-fn solve_cube_brute_force(cube: &mut RubiksCube) -> String {
-    if cube.is_solved() {
-        return "".to_string();
+fn brute_force_one_step(cube: &mut RubiksCube, last_moves: &mut Vec<i32>) -> String {
+    for rot in 0..12 {
+        rotate_cube(cube, rot);
+        last_moves.push(rot);
+        if cube.is_solved() {
+            return moves_to_string(last_moves);
+        }
+        if last_moves.len() < 6 {
+            brute_force_one_step(cube, last_moves);
+        }
+        last_moves.pop();
+        undo_move(cube, rot);
     }
-    
+    return "".to_string();
+}
+
+fn solve_cube_brute_force_recursive(cube: &mut RubiksCube) -> String {
+    let solution = brute_force_one_step(cube, &mut vec![]);
+    if solution != "" {
+        return solution;
+    }
+    return "not solved".to_string();
+}
+
+fn solve_cube_brute_force_embedded_loops(cube: &mut RubiksCube) -> String {
     for rot1 in 0..12 {
         rotate_cube(cube, rot1);
         if cube.is_solved() {
@@ -100,6 +120,15 @@ fn solve_cube_brute_force(cube: &mut RubiksCube) -> String {
     }
 
     return "not solved".to_string();
+}
+
+fn solve_cube_brute_force(cube: &mut RubiksCube) -> String {
+    if cube.is_solved() {
+        return "".to_string();
+    }
+
+    //return solve_cube_brute_force_recursive(cube);
+    return solve_cube_brute_force_embedded_loops(cube);
 }
 
 pub fn solve_cube(cube: &mut RubiksCube) -> String {

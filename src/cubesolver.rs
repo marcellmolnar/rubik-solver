@@ -2,6 +2,8 @@ use super::common_functions::{rotation_to_string, rotate_cube, undo_move};
 
 use crate::rubikscube::RubiksCube;
 
+const MAX_SOLVE_DEPTH: usize = 5;
+
 // return string of the moves from vector of integers
 fn moves_to_string(moves: &Vec<i32>) -> String {
     let mut result = "".to_string();
@@ -12,23 +14,23 @@ fn moves_to_string(moves: &Vec<i32>) -> String {
     return result;
 }
 
-fn brute_force_one_step(cube: &mut RubiksCube, last_moves: &mut Vec<i32>) -> String {
-    for rot in 0..12 {
-        rotate_cube(cube, rot);
-        last_moves.push(rot);
-        if cube.is_solved() {
-            return moves_to_string(last_moves);
-        }
-        if last_moves.len() < 6 {
-            brute_force_one_step(cube, last_moves);
-        }
-        last_moves.pop();
-        undo_move(cube, rot);
-    }
-    return "".to_string();
-}
-
 fn solve_cube_brute_force_recursive(cube: &mut RubiksCube) -> String {
+    fn brute_force_one_step(cube: &mut RubiksCube, last_moves: &mut Vec<i32>) -> String {
+        for rot in 0..12 {
+            rotate_cube(cube, rot);
+            last_moves.push(rot);
+            if cube.is_solved() {
+                return moves_to_string(last_moves);
+            }
+            if last_moves.len() < MAX_SOLVE_DEPTH {
+                brute_force_one_step(cube, last_moves);
+            }
+            last_moves.pop();
+            undo_move(cube, rot);
+        }
+        return "".to_string();
+    }
+
     let solution = brute_force_one_step(cube, &mut vec![]);
     if solution != "" {
         return solution;
@@ -36,48 +38,56 @@ fn solve_cube_brute_force_recursive(cube: &mut RubiksCube) -> String {
     return "not solved".to_string();
 }
 
-fn solve_cube_brute_force_embedded_loops(cube: &mut RubiksCube) -> String {
-    for rot1 in 0..12 {
-        rotate_cube(cube, rot1);
+fn solve_cube_brute_force_spread_out(cube: &mut RubiksCube) -> String {
+    if cube.is_solved() {
+        return "already solved".to_string();
+    }
+    
+    // vector of moves initially containing a zero
+    let mut moves: Vec<i32> = vec![0];
+
+    // while there are still moves in the vector
+    while moves.len() > 0 {
+        // get the last move from the vector
+        let last_move = moves[moves.len() - 1];
+
+        // rotate the cube by the last move
+        rotate_cube(cube, last_move);
+
+        //println!("{}", moves_to_string(&moves));
+        // if the cube is solved, return the moves
         if cube.is_solved() {
-            return moves_to_string(&vec![rot1]);
+            return moves_to_string(&moves);
         }
-        for rot2 in 0..12 {
-            rotate_cube(cube, rot2);
-            if cube.is_solved() {
-                return moves_to_string(&vec![rot1, rot2]);
-            }
-            for rot3 in 0..12 {
-                rotate_cube(cube, rot3);
-                if cube.is_solved() {
-                    return moves_to_string(&vec![rot1, rot2, rot3]);
-                }
-                for rot4 in 0..12 {
-                    rotate_cube(cube, rot4);
-                    if cube.is_solved() {
-                        return moves_to_string(&vec![rot1, rot2, rot3, rot4]);
-                    }
-                    for rot5 in 0..12 {
-                        rotate_cube(cube, rot5);
-                        if cube.is_solved() {
-                            return moves_to_string(&vec![rot1, rot2, rot3, rot4, rot5]);
-                        }
-                        for rot6 in 0..12 {
-                            rotate_cube(cube, rot6);
-                            if cube.is_solved() {
-                                return moves_to_string(&vec![rot1, rot2, rot3, rot4, rot5, rot6]);
-                            }
-                            undo_move(cube, rot6);
-                        }
-                        undo_move(cube, rot5);
-                    }
-                    undo_move(cube, rot4);
-                }
-                undo_move(cube, rot3);
-            }
-            undo_move(cube, rot2);
+
+        let mut had_fallback: bool = false;
+        // remove last until the last is 11
+        while (moves.len() > 1 || (moves.len() == 1 && had_fallback)) && moves[moves.len() - 1] == 11 {
+            undo_move(cube, moves[moves.len() - 1]);
+            moves.pop();
+            had_fallback = true;
         }
-        undo_move(cube, rot1);
+
+        let moves_len = moves.len();
+        // if there was a fallback, increment the last move and continue
+        if had_fallback {
+            // if there are no moves left, break
+            if moves.is_empty() {
+                break;
+            }
+            
+            undo_move(cube, moves[moves.len() - 1]);
+            moves[moves_len - 1] += 1;
+            continue;
+        }
+
+        if moves.len() < MAX_SOLVE_DEPTH {
+            moves.push(0);
+        }
+        else {
+            undo_move(cube, last_move);
+            moves[moves_len - 1] += 1;
+        }
     }
 
     return "not solved".to_string();
@@ -89,7 +99,7 @@ fn solve_cube_brute_force(cube: &mut RubiksCube) -> String {
     }
 
     //return solve_cube_brute_force_recursive(cube);
-    return solve_cube_brute_force_embedded_loops(cube);
+    return solve_cube_brute_force_spread_out(cube);
 }
 
 pub fn solve_cube(cube: &mut RubiksCube) -> String {

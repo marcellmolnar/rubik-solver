@@ -14,6 +14,7 @@ pub fn rotation_to_string(rotation: i32) -> String {
         9 => "F'".to_string(),
         10 => "B".to_string(),
         11 => "B'".to_string(),
+        12 => "-".to_string(),
         _ => panic!("Invalid move number"),
     }
 }
@@ -32,10 +33,14 @@ pub fn rotate_cube(cube: &mut RubiksCube, rotation: i32) {
         9 => cube.Fp(),
         10 => cube.B(),
         11 => cube.Bp(),
+        12 => (),
         _ => panic!("Invalid move number"),
     }
 }
 
 pub fn undo_move(cube: &mut RubiksCube, rotation: i32) {
+    if rotation == 12 {
+        return;
+    }
     rotate_cube(cube, if rotation % 2 == 0 { rotation + 1 } else { rotation - 1 });
 }

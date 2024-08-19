@@ -37,6 +37,15 @@ impl RubiksCube {
         back: Layer{colors:[Color::Orange; 9], mid_color: Color::Orange}}
     }
 
+    pub fn reset(&mut self) {
+        self.top = Layer{colors:[Color::Yellow; 9], mid_color: Color::Yellow};
+        self.bottom = Layer{colors:[Color::White; 9], mid_color: Color::White};
+        self.left = Layer{colors:[Color::Blue; 9], mid_color: Color::Blue};
+        self.right = Layer{colors:[Color::Green; 9], mid_color: Color::Green};
+        self.front = Layer{colors:[Color::Red; 9], mid_color: Color::Red};
+        self.back = Layer{colors:[Color::Orange; 9], mid_color: Color::Orange};
+    }
+
     fn rot_in_layer(layer: &mut Layer, indices: [usize; 4]) {
         let tmp = layer.colors[indices[0]].clone();
         layer.colors[indices[0]] = layer.colors[indices[1]];

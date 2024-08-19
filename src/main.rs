@@ -36,17 +36,17 @@ fn main() {
     let sol = cubesolver::solve_cube(&mut cube);
     println!("Solution: {}", sol);
 
-/*
-    for _i in 0..10 {
+
+    for _i in 0..100 {
+        if _i % 10 == 0 {
+            println!("Iteration: {}", _i);
+        }
         cube.reset();
         let scramble: String = cube.scramble(5);
-        println!("Scramble: {}", scramble);
 
-        let now: Instant = Instant::now();
         let sol = cubesolver::solve_cube(&mut cube);
-        let end: Duration = now.elapsed();
-        println!("Solution: {}", sol);
-        println!("Solve time: {} ms", end.as_millis());
+        if sol == "not solved" {
+            println!("Scramble: {}", scramble);
+        }
     }
-*/
 }

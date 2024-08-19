@@ -45,6 +45,7 @@ fn solve_cube_brute_force_spread_out(cube: &mut RubiksCube) -> String {
     
     // vector of moves initially containing a zero
     let mut moves: Vec<i32> = vec![0];
+    let mut disable_remove = false;
 
     // while there are still moves in the vector
     while moves.len() > 0 {
@@ -61,11 +62,17 @@ fn solve_cube_brute_force_spread_out(cube: &mut RubiksCube) -> String {
         }
 
         let mut had_fallback: bool = false;
-        // remove last until the last is 11
-        while (moves.len() > 1 || (moves.len() == 1 && had_fallback)) && moves[moves.len() - 1] == 11 {
-            undo_move(cube, moves[moves.len() - 1]);
-            moves.pop();
-            had_fallback = true;
+
+        if !disable_remove {
+            // remove last until the last is 11
+            while moves.len() > 0 && moves[moves.len() - 1] == 11 {
+                undo_move(cube, moves[moves.len() - 1]);
+                moves.pop();
+                had_fallback = true;
+            }
+        }
+        else {
+            disable_remove = false;
         }
 
         let moves_len = moves.len();
@@ -78,6 +85,9 @@ fn solve_cube_brute_force_spread_out(cube: &mut RubiksCube) -> String {
             
             undo_move(cube, moves[moves.len() - 1]);
             moves[moves_len - 1] += 1;
+            if moves[moves_len - 1] == 11 && moves_len < MAX_SOLVE_DEPTH {
+                disable_remove = true;
+            }
             continue;
         }
 
@@ -87,6 +97,9 @@ fn solve_cube_brute_force_spread_out(cube: &mut RubiksCube) -> String {
         else {
             undo_move(cube, last_move);
             moves[moves_len - 1] += 1;
+            if moves[moves_len - 1] == 11 && moves_len < MAX_SOLVE_DEPTH {
+                disable_remove = true;
+            }
         }
     }
 

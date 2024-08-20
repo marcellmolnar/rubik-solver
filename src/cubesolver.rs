@@ -2,7 +2,13 @@ use super::common_functions::{rotation_to_string, rotate_cube, undo_move};
 
 use crate::rubikscube::RubiksCube;
 
-const MAX_SOLVE_DEPTH: usize = 5;
+const MAX_SOLVE_DEPTH: usize = 15;
+
+// enum to hold two modes
+pub enum SolveMode {
+    BruteForceRecursive,
+    BruteForceSpreadOut,
+}
 
 // return string of the moves from vector of integers
 fn moves_to_string(moves: &Vec<i32>) -> String {
@@ -106,15 +112,15 @@ fn solve_cube_brute_force_spread_out(cube: &mut RubiksCube) -> String {
     return "not solved".to_string();
 }
 
-fn solve_cube_brute_force(cube: &mut RubiksCube) -> String {
+pub fn solve_cube(cube: &mut RubiksCube, mode: SolveMode) -> String {
     if cube.is_solved() {
         return "".to_string();
     }
 
-    //return solve_cube_brute_force_recursive(cube);
-    return solve_cube_brute_force_spread_out(cube);
-}
-
-pub fn solve_cube(cube: &mut RubiksCube) -> String {
-    return solve_cube_brute_force(cube);
+    match mode {
+        SolveMode::BruteForceRecursive =>
+        return solve_cube_brute_force_recursive(cube),
+    SolveMode::BruteForceSpreadOut =>
+        return solve_cube_brute_force_spread_out(cube)
+    }
 }

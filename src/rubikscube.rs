@@ -12,12 +12,13 @@ enum Color {
     Green,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 struct Layer {
     colors: [Color; 9], // in scanline order
     mid_color: Color
 }
 
+#[derive(Clone, Copy)]
 pub struct RubiksCube {
     top: Layer,
     bottom: Layer,

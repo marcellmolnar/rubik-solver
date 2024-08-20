@@ -38,6 +38,12 @@ pub fn rotate_cube(cube: &mut RubiksCube, rotation: i32) {
     }
 }
 
+pub fn rotate_cube_with_moves(cube: &mut RubiksCube, moves: &Vec<i32>) {
+    for i in 0..moves.len() {
+        rotate_cube(cube, moves[i]);
+    }
+}
+
 pub fn undo_move(cube: &mut RubiksCube, rotation: i32) {
     if rotation == 12 {
         return;

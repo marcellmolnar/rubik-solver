@@ -1,5 +1,7 @@
 use rand::Rng;
 
+use crate::common_functions::moves_to_string;
+
 #[derive(Copy, Clone)]
 #[derive(Debug)]
 #[derive(PartialEq)]
@@ -10,6 +12,17 @@ enum Color {
     Orange,
     Blue,
     Green,
+}
+
+fn color_to_char(c: Color) -> String {
+    match c{
+        Color::Yellow => "Y".to_string(),
+        Color::White => "W".to_string(),
+        Color::Red => "R".to_string(),
+        Color::Orange => "O".to_string(),
+        Color::Blue => "B".to_string(),
+        Color::Green => "G".to_string(),
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -247,71 +260,69 @@ impl RubiksCube {
 
     pub fn scramble(&mut self, moves: i32) -> String {
         let mut rng = rand::thread_rng();
-        // string to strore the moves
-        let mut moves_str = String::new();
+        let mut moves_vec = Vec::new();
         for _ in 0..moves {
             let r = rng.gen_range(0..12);
+            moves_vec.push(r);
             match r {
                 0 => {
                     self.U();
-                    moves_str.push_str("U ");
                 },
                 1 => {
                     self.Up();
-                    moves_str.push_str("U' ");
                 },
                 2 => {
                     self.D();
-                    moves_str.push_str("D ");
                 },
                 3 => {
                     self.Dp();
-                    moves_str.push_str("D' ");
                 },
                 4 => {
                     self.R();
-                    moves_str.push_str("R ");
                 },
                 5 => {
                     self.Rp();
-                    moves_str.push_str("R' ");
                 },
                 6 => {
                     self.L();
-                    moves_str.push_str("L ");
                 },
                 7 => {
                     self.Lp();
-                    moves_str.push_str("L' ");
                 },
                 8 => {
                     self.F();
-                    moves_str.push_str("F ");
                 },
                 9 => {
                     self.Fp();
-                    moves_str.push_str("F' ");
                 },
                 10 => {
                     self.B();
-                    moves_str.push_str("B ");
                 },
                 11 => {
                     self.Bp();
-                    moves_str.push_str("B' ");
                 },
                 _ => {}
             }
         }
-        return moves_str;
+        return moves_to_string(&moves_vec);
     }
 
-    pub fn repr(&self) {
+    pub fn to_consolse(&self) {
         println!("top: {:?}", self.top.colors);
         println!("bottom: {:?}", self.bottom.colors);
         println!("front: {:?}", self.front.colors);
         println!("left: {:?}", self.left.colors);
         println!("back: {:?}", self.back.colors);
         println!("right: {:?}", self.right.colors);
+    }
+
+    pub fn repr(&self) -> String {
+        let mut s = String::new();
+        for f in [&self.top, &self.bottom, &self.front, &self.left, &self.back, &self.right] {
+            for c in f.colors {
+                s.push_str(&color_to_char(c));
+            }
+        }
+        return s;
     }
 }
